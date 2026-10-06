@@ -209,13 +209,28 @@ export class CenaJogo extends Phaser.Scene {
   anunciar(titulo, subtitulo = '') { this.events.emit('anuncio', titulo, subtitulo); }
   atrairTodoXp() { this.itens.atrairTodoXp(); }
 
+  /**
+   * Toca um som "no mundo": o volume cai com a distância até o jogador e o pan
+   * estéreo segue o lado de onde ele vem. Em primeira pessoa isso ajuda a
+   * perceber, só pelo ouvido, o que está chegando pelas costas.
+   */
+  somEm(nome, x, y, volume = 1, intervaloMin = 0.04) {
+    if (!nome) return;
+    const jog = this.jogador;
+    const dx = x - jog.x, dy = y - jog.y, d = Math.hypot(dx, dy);
+    const ganho = Math.max(0.12, Math.min(1, 1.15 - d / 18));
+    // componente "para a direita" da direção do som, de -1 a 1
+    const lado = d > 0.3 ? (-dx * Math.sin(jog.ang) + dy * Math.cos(jog.ang)) / d : 0;
+    sons.tocar(nome, volume * ganho, intervaloMin, lado * 0.8);
+  }
+
   /** Explosão do jogador (foguete, BFG): dano em área nos inimigos e, se estiver perto, em você. */
   explosao(x, y, def, dano, critico) {
     const jog = this.jogador;
     const raio = def.raio * jog.mods.area;
     this.horda.danoEmArea(x, y, raio, dano, def.empurrao, null, critico);
     this.efeitos.anim(def.quadros, x, y, 0.7, def.escala * Math.sqrt(jog.mods.area), 11);
-    sons.tocar(def.som, 1, 0.06);
+    this.somEm(def.som, x, y, 1.2, 0.06);
     const d = Math.hypot(jog.x - x, jog.y - y);
     this.tremer(Math.max(1, 9 - d));
     this.clarao(80);
@@ -271,7 +286,7 @@ export class CenaJogo extends Phaser.Scene {
   aoEnfurecerChefe() {
     this.anunciar('FÚRIA!', 'O chefão está mais rápido e agressivo');
     this.tremer(12);
-    sons.tocar('chefeRugido');
+    sons.tocar('chefeFuria');
   }
 
   aoMorrerChefe(chefe) {
@@ -285,7 +300,7 @@ export class CenaJogo extends Phaser.Scene {
     this.itens.atrairTodoXp();
     this.anunciar('CHEFÃO DERROTADO', '');
     this.tremer(14);
-    sons.tocar('bfgExplosao');
+    sons.tocar('explosao');
     sons.musica(false);
   }
 

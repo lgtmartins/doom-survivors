@@ -10,7 +10,7 @@ import { perseguir } from './Inimigo.js';
 import { sons } from '../systems/Sons.js';
 
 export function iniciarChefe(e) {
-  e.chefe = { fase: 'andar', t: 0, tTiro: 0, feitos: 0, furia: false, ciclo: 0, tContato: 0, tParado: 0, refX: e.x, refY: e.y, girou: 0 };
+  e.chefe = { fase: 'andar', t: 0, tTiro: 0, feitos: 0, furia: false, ciclo: 0, tContato: 0, tParado: 0, refX: e.x, refY: e.y, tPasso: 0 };
   e.tAtaque = 2.2;
 }
 
@@ -40,7 +40,7 @@ function escolherPadrao(e, jogo) {
   let p = padroes[c.ciclo++ % padroes.length];
   if (p === 'invocar' && jogo.horda.vivos > 45) p = 'anel'; // já tem gente demais na arena
   comecar(e, p);
-  if (p === 'investida' || p === 'invocar') sons.tocar('chefeRugido', 0.7);
+  if (p === 'investida' || p === 'invocar') jogo.somEm('chefeRugido', e.x, e.y, 1, 0.3);
 }
 
 export function iaChefe(e, dt, jogo) {
@@ -70,7 +70,12 @@ export function iaChefe(e, dt, jogo) {
   switch (c.fase) {
     case 'andar': {
       e.estado = 'andar';
-      if (d > 3) perseguir(e, dt, jogo, f ? CHEFE.velFuria : e.def.vel);
+      if (d > 3) {
+        perseguir(e, dt, jogo, f ? CHEFE.velFuria : e.def.vel);
+        // passos metálicos: dá para ouvir de que lado ele vem
+        c.tPasso -= dt;
+        if (c.tPasso <= 0) { c.tPasso = f ? 0.34 : 0.5; jogo.somEm('chefePasso', e.x, e.y); }
+      }
       // anti-trava: se ficou 3 s praticamente parado longe do jogador, teleporta
       c.tParado += dt;
       if (c.tParado > 3) {
@@ -100,7 +105,7 @@ export function iaChefe(e, dt, jogo) {
         jogo.projeteis.disparar(PROJETEIS_INIMIGOS[r.projetil], false, e.x + (dx / d) * e.raio, e.y + (dy / d) * e.raio, ang, r.vel, r.dano, false, e.def.nome);
         if ((c.feitos++ & 1) === 0) {
           jogo.efeitos.anim(PROJETEIS_INIMIGOS.bala.impacto, e.x + (dx / d) * (e.raio + 0.2), e.y + (dy / d) * (e.raio + 0.2), 0.75, 0.5, 20);
-          sons.tocar('chefeTiro', 0.6, 0.05);
+          jogo.somEm('chefeTiro', e.x, e.y, 1, 0.05);
         }
       }
       if (c.t >= r.duracao[f]) terminar(e);
@@ -118,7 +123,7 @@ export function iaChefe(e, dt, jogo) {
         const def = PROJETEIS_INIMIGOS[f ? a.projetilFuria : a.projetil];
         for (let i = 0; i < n; i++) jogo.projeteis.disparar(def, false, e.x, e.y, base + (i / n) * Math.PI * 2, a.vel[f], a.dano, false, e.def.nome);
         c.feitos++;
-        sons.tocar('plasma', 0.9);
+        jogo.somEm('tiroInimigo', e.x, e.y, 1.3, 0.1);
         jogo.tremer(2);
       }
       if (c.feitos >= a.aneis[f] && c.tTiro <= 0) terminar(e);

@@ -8,6 +8,8 @@ import { ARMAS } from '../data/armas.js';
 import { INIMIGOS, PROJETEIS_INIMIGOS, EFEITOS } from '../data/inimigos.js';
 import { ITENS } from '../data/itens.js';
 import { UPGRADES, CARTA_RESERVA } from '../data/upgrades.js';
+import { arquivosDeSom, slug } from '../data/sons.js';
+import { sons } from '../systems/Sons.js';
 import { texto } from './ui.js';
 
 export class CenaBoot extends Phaser.Scene {
@@ -19,12 +21,16 @@ export class CenaBoot extends Phaser.Scene {
     texto(this, TELA_L / 2, TELA_A / 2 - 40, 'CARREGANDO...', 26, COR.cinza);
     this.load.on('progress', (p) => { barra.width = 400 * p; });
     for (const nome of ATLAS) this.load.atlas(nome, `assets/${nome}.png`, `assets/${nome}.json`);
+    // Os sons são baixados como binário puro: quem os decodifica e toca é systems/Sons.js
+    // (o áudio do Phaser está desligado em main.js).
+    for (const nome of arquivosDeSom()) this.load.binary(`sfx-${slug(nome)}`, `assets/sfx/${slug(nome)}.wav`);
   }
 
   create() {
     for (const nome of ATLAS) carregarAtlasNoBanco(this, nome);
     // `registry` é o "quadro de avisos" global do Phaser: qualquer cena lê daqui
     this.registry.set('texturas', criarTexturas());
+    sons.registrar(Object.fromEntries(arquivosDeSom().map(nome => [nome, this.cache.binary.get(`sfx-${slug(nome)}`)]).filter(([, dados]) => dados)));
     this.validarSprites();
     this.scene.start('Menu');
   }

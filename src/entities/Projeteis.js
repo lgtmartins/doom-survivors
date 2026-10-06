@@ -2,7 +2,6 @@
 import { Pool } from '../systems/Pool.js';
 import { quadrosDe } from '../render/BancoDeSprites.js';
 import { ferirInimigo } from './Inimigo.js';
-import { sons } from '../systems/Sons.js';
 
 const ALTURA = 0.5;      // todos voam na altura do peito
 const VIDA_MAX = 6;      // segundos; some se não acertar nada
@@ -68,9 +67,10 @@ export class Projeteis {
     }
     if (alvo) ferirInimigo(alvo, p.dano, jogo, p.critico, p.x, p.y, 1);
     if (def.impacto) jogo.efeitos.anim(def.impacto, p.x, p.y, ALTURA, def.impactoEscala || 1, 14);
+    if (!p.amigo) jogo.somEm('impacto', p.x, p.y, 0.8, 0.12);
     if (def.chama && !alvo) {
       jogo.efeitos.chama(def.chama, p.x, p.y, def.chama.dano * jogo.diretor.multDano);
-      sons.tocar('fogo', 0.6);
+      jogo.somEm('fogo', p.x, p.y, 1, 0.1);
     }
   }
 

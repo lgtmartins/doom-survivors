@@ -6,7 +6,6 @@
 import { INIMIGOS, PROJETEIS_INIMIGOS, EFEITOS } from '../data/inimigos.js';
 import { quadrosDe } from '../render/BancoDeSprites.js';
 import { PX_POR_UNIDADE } from '../config.js';
-import { sons } from '../systems/Sons.js';
 import { iaChefe, iniciarChefe } from './Chefe.js';
 
 const T_NASCER = 0.45;
@@ -71,7 +70,7 @@ function atirar(e, jogo) {
   for (let i = 0; i < n; i++) {
     jogo.projeteis.disparar(PROJETEIS_INIMIGOS[t.projetil], false, e.x, e.y, ang + (i - (n - 1) / 2) * (t.leque || 0), t.vel, t.dano * jogo.diretor.multDano, false, e.def.nome);
   }
-  sons.tocar('tiroInimigo', 0.7);
+  jogo.somEm('tiroInimigo', e.x, e.y, 1, 0.08);
 }
 
 // ----------------------------------------------------- inteligências (ia)
@@ -89,7 +88,7 @@ const IA = {
       const d = perseguir(e, dt, jogo, e.def.vel);
       if (d < inv.alcance && e.tAtaque <= 0 && jogo.mapa.visivel(e.x, e.y, j.x, j.y)) {
         e.estado = 'preparar'; e.tEstado = 0;
-        sons.tocar('grito', 0.6, 0.15);
+        jogo.somEm(e.def.sons.ataque, e.x, e.y, 1, 0.15);
       }
     } else if (e.estado === 'preparar') {
       if (e.tEstado >= inv.preparo) {
@@ -111,7 +110,7 @@ const IA = {
     if (e.estado === 'andar') {
       if (perseguir(e, dt, jogo, e.def.vel) < ex.gatilho) {
         e.estado = 'pavio'; e.tEstado = 0;
-        sons.tocar('banshee', 0.7, 0.1);
+        jogo.somEm(e.def.sons.ataque, e.x, e.y, 1, 0.1);
       }
     } else if (e.estado === 'pavio') {
       perseguir(e, dt, jogo, e.def.vel * 0.55);
@@ -160,6 +159,7 @@ const IA = {
     e.tLado -= dt; // aqui tLado é reaproveitado como recarga das bolas de fogo
     if (e.tLado <= 0 && d < t.distMax && d > 1.8 && jogo.mapa.visivel(e.x, e.y, j.x, j.y)) {
       e.estado = 'atacar'; e.tEstado = 0; e.atirou = false;
+      jogo.somEm(e.def.sons.ataque, e.x, e.y, 1, 0.5);
     }
   },
 
@@ -226,7 +226,7 @@ export function ferirInimigo(e, dano, jogo, critico, ox, oy, empurrao = 0) {
   }
   if (e.def.chanceDor && Math.random() < e.def.chanceDor && (e.estado === 'andar' || e.estado === 'atacar' || e.estado === 'preparar')) {
     e.estado = 'dor'; e.tEstado = 0;
-    sons.tocar('inimigoDor', 0.5, 0.08);
+    jogo.somEm(e.def.sons?.dor || 'dorGenerica', e.x, e.y, 0.8, 0.12);
   }
   return false;
 }
@@ -244,7 +244,8 @@ export function matarInimigo(e, jogo, semRecompensa) {
   }
   // criaturas de fogo (sprites com `brilho`) não sangram
   if (!def.sprites.brilho) jogo.efeitos.sangue(e.x, e.y, (def.voa || 0.5), def.ia === 'tanque' ? 14 : 5);
-  sons.tocar(def.ia === 'kamikaze' ? 'explosao' : 'inimigoMorte', def.ia === 'kamikaze' ? 0.6 : 0.5, 0.05);
+  jogo.somEm(def.sons?.morte || 'gosma', e.x, e.y, 1, 0.06);
+  if (def.explosao) jogo.somEm('explosao', e.x, e.y, 0.7, 0.08);
   // a Banshee explode ao morrer e leva os vizinhos junto (reação em cadeia!)
   if (def.explosao) {
     jogo.efeitos.anim(EFEITOS.explosao, e.x, e.y, e.z, 1.1, 12);

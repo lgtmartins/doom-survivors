@@ -7,7 +7,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "assets": "node tools/recortar.mjs",
-    "teste": "node tools/teste.mjs"
+    "teste": "node tools/teste.mjs",
+    "sons": "node tools/copiar-sons.mjs"
   },
   "type": "module",
   "dependencies": {

@@ -6,6 +6,8 @@
 //   voa        z do CENTRO do sprite; se ausente, o sprite fica com a base no chão
 //   xp         valor da gema de XP que solta
 //   chanceDor  chance de "sentir" o tiro e interromper o que estava fazendo
+//   sons       { ver, dor, morte, ataque }: nomes de data/sons.js. Sem `dor`/`morte`,
+//              usa os genéricos; `ver` toca quando o monstro nasce
 //
 // Só são usados os frames FRONTAIS de cada monstro: em primeira pessoa, quem está
 // te perseguindo está sempre de frente para você.
@@ -19,6 +21,7 @@ export const INIMIGOS = {
     ataque: { dano: 7, alcance: 0.45, intervalo: 0.9 },
     chanceDor: 0,
     sprites: { andar: s('blob', '1_0', '1_1', '1_2', '1_1'), fps: 6, morrer: s('fx', '2_2', '2_3', '2_4'), morrerBrilho: true },
+    sons: { morte: 'gosma' },
     corRadar: 0xff3030d0,
   },
   // Para, grita e se lança em linha reta. Dá para desviar de lado.
@@ -30,6 +33,7 @@ export const INIMIGOS = {
       andar: s('lostsoul', '0_0', '2_0'), fps: 6, atacar: s('lostsoul', '3_0', '4_0'), dor: s('lostsoul', '5_0'),
       morrer: s('lostsoul', '6_0', '6_1', '6_2', '6_3', '6_4', '6_5'), brilho: true, morrerBrilho: true,
     },
+    sons: { ataque: 'lostSoulAtaque', morte: 'lostSoulMorte' },
     corRadar: 0xff30a0ff,
   },
   // Kamikaze: mais rápida que você. Mate de longe, porque ela explode.
@@ -38,6 +42,7 @@ export const INIMIGOS = {
     explosao: { dano: 24, raio: 1.9, pavio: 0.38, gatilho: 1.15, danoInimigos: 45 },
     chanceDor: 0,
     sprites: { andar: s('banshee', '0_0', '0_1', '0_2', '0_3'), fps: 8, morrer: s('banshee', '1_0', '1_1', '1_2', '1_3'), brilho: true, morrerBrilho: true },
+    sons: { ataque: 'bansheeGrito', dor: 'bansheeDor', morte: 'bansheeMorte' },
     corRadar: 0xff00d0ff,
   },
   // Mantém distância, anda de lado e atira raios.
@@ -49,6 +54,7 @@ export const INIMIGOS = {
       andar: s('ghoul', '0_0', '0_1', '0_2', '0_1'), fps: 6, atacar: s('ghoul', '0_3', '0_4', '0_5', '0_6'), dor: s('ghoul', '0_8'),
       morrer: s('ghoul', '5_0', '5_1', '5_2', '5_3', '5_4', '5_5', '5_6', '5_7'), cadaver: 'ghoul_5_7',
     },
+    sons: { ver: 'ghoulVer', dor: 'ghoulDor', morte: 'ghoulMorte' },
     corRadar: 0xffffd060,
   },
   // Tanque: lento, aguenta muito, lança 3 bolas de fogo que deixam o chão queimando.
@@ -61,6 +67,7 @@ export const INIMIGOS = {
       andar: s('vassago', '0_0', '1_0', '2_0', '3_0'), fps: 5, atacar: s('vassago', '4_0', '5_0', '6_0', '7_0'), dor: s('vassago', '8_0'),
       morrer: Array.from({ length: 8 }, (_, i) => `vassago_morte_${i}`), cadaver: 'vassago_morte_7', morrerBrilho: true,
     },
+    sons: { ver: 'vassagoVer', ataque: 'vassagoAtaque', dor: 'vassagoDor', morte: 'vassagoMorte' },
     corRadar: 0xff4060ff, radarGrande: true,
   },
   // Chefão. Os padrões de ataque estão em entities/Chefe.js; os números, em data/chefe.js.
@@ -71,6 +78,7 @@ export const INIMIGOS = {
       andar: s('spider', '0_0', '1_0', '2_0', '1_0'), fps: 5, atacar: s('spider', '0_0'),
       morrer: s('spider', '3_0', '3_1', '3_2', '3_3', '3_4', '4_0', '4_1', '4_2', '4_3', '4_4', '4_5'), fpsMorrer: 4, cadaver: 'spider_4_5',
     },
+    sons: { morte: 'chefeMorte' },
     corRadar: 0xffff40ff, radarGrande: true,
   },
 };

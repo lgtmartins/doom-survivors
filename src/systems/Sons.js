@@ -1,39 +1,18 @@
-// Áudio 100% sintetizado com a Web Audio API (o pack de assets não tem som).
-// Cada efeito é uma receita feita de dois tijolos:
-//   tom()   -> oscilador com a frequência deslizando de f0 para f1
-//   ruido() -> ruído branco passando por um filtro que também desliza
-// A música é um sequenciador simples de 16 passos (baixo distorcido + bumbo + chimbal).
+// Áudio do jogo, todo pela Web Audio API.
+//
+// Efeitos: são os WAVs originais do Doom (tabela em data/sons.js). A cena de boot
+// baixa os arquivos; aqui eles são decodificados em AudioBuffers e tocados com
+// volume, tom e posição estéreo (pan) por toque.
+//
+// Três sons não existem no pack e continuam sintetizados (RECEITAS, abaixo), com
+// dois tijolos: tom() é um oscilador cuja frequência desliza; ruido() é ruído
+// branco passando por um filtro. A música também é sintetizada: um sequenciador
+// de 16 passos (baixo distorcido + bumbo + chimbal).
+import { SONS } from '../data/sons.js';
 
 const RECEITAS = {
-  pistola: (s) => { s.ruido(0.13, 3200, 500, 0.5); s.tom('square', 210, 55, 0.09, 0.35); },
-  shotgun: (s) => { s.ruido(0.34, 2600, 220, 0.9); s.tom('sawtooth', 130, 38, 0.22, 0.5); },
-  chaingun: (s) => { s.ruido(0.07, 2400, 700, 0.42); s.tom('square', 170, 65, 0.05, 0.28); },
-  foguete: (s) => { s.ruido(0.5, 500, 2600, 0.5); s.tom('sawtooth', 90, 190, 0.3, 0.25); },
-  explosao: (s) => { s.ruido(0.75, 1000, 70, 1.0); s.tom('sine', 95, 28, 0.55, 0.8); },
-  plasma: (s) => { s.tom('sawtooth', 950, 180, 0.11, 0.22); s.tom('square', 1400, 500, 0.06, 0.1); },
-  bfg: (s) => { s.tom('sawtooth', 70, 520, 0.6, 0.4); s.tom('square', 140, 1040, 0.6, 0.15); },
-  bfgExplosao: (s) => { s.ruido(1.1, 2200, 60, 1.0); s.tom('sine', 220, 26, 0.9, 0.9); s.tom('sawtooth', 660, 110, 0.5, 0.25); },
-  ferido: (s) => { s.tom('sawtooth', 310, 110, 0.2, 0.5); s.ruido(0.1, 900, 300, 0.3); },
-  inimigoDor: (s) => { s.tom('square', 230, 150, 0.07, 0.16); },
-  inimigoMorte: (s) => { s.ruido(0.2, 1300, 180, 0.35); s.tom('sawtooth', 170, 48, 0.24, 0.3); },
-  grito: (s) => { s.tom('sawtooth', 420, 980, 0.32, 0.22); },
-  banshee: (s) => { s.tom('sine', 880, 1700, 0.36, 0.3); s.tom('triangle', 900, 1750, 0.36, 0.15); },
-  tiroInimigo: (s) => { s.tom('triangle', 520, 190, 0.18, 0.25); },
-  fogo: (s) => { s.ruido(0.3, 500, 1800, 0.3); },
   xp: (s) => { s.tom('triangle', 900, 1350, 0.05, 0.1); },
-  item: (s) => { s.tom('sine', 620, 940, 0.13, 0.35); s.tom('sine', 940, 1250, 0.13, 0.25, 0.09); },
-  poder: (s) => { s.tom('sawtooth', 200, 800, 0.4, 0.3); s.tom('sine', 400, 1600, 0.4, 0.3); },
-  nivel: (s) => { [523, 659, 784, 1047].forEach((f, i) => s.tom('square', f, f, 0.12, 0.2, i * 0.08)); },
   dash: (s) => { s.ruido(0.16, 700, 3200, 0.35); },
-  teleporte: (s) => { s.tom('sine', 180, 760, 0.25, 0.18); s.ruido(0.2, 2000, 600, 0.12); },
-  trocar: (s) => { s.tom('square', 300, 420, 0.05, 0.15); },
-  negado: (s) => { s.tom('square', 140, 110, 0.1, 0.2); },
-  menu: (s) => { s.tom('square', 440, 440, 0.05, 0.2); },
-  confirmar: (s) => { s.ruido(0.25, 2400, 300, 0.6); s.tom('sawtooth', 150, 45, 0.2, 0.4); },
-  onda: (s) => { s.tom('sawtooth', 110, 110, 0.25, 0.3); s.tom('sawtooth', 165, 165, 0.35, 0.3, 0.2); },
-  chefeRugido: (s) => { s.tom('sawtooth', 120, 42, 1.1, 0.7); s.ruido(1.0, 700, 120, 0.6); },
-  chefeTiro: (s) => { s.ruido(0.06, 1500, 500, 0.3); s.tom('square', 120, 50, 0.05, 0.2); },
-  morte: (s) => { s.tom('sawtooth', 380, 45, 0.95, 0.6); },
   vitoria: (s) => { [392, 523, 659, 784, 1047, 1319].forEach((f, i) => s.tom('square', f, f, 0.22, 0.22, i * 0.14)); },
 };
 
@@ -53,6 +32,25 @@ class Sons {
     this.musicaLigada = false;
     this.intensa = false;    // versão acelerada para o chefão
     this.volumeDaVez = 1;
+    this.brutos = {};        // nome do arquivo -> ArrayBuffer (WAV ainda não decodificado)
+    this.amostras = {};      // nome do arquivo -> AudioBuffer pronto para tocar
+    this.avisados = {};
+  }
+
+  /** Recebe os WAVs baixados pela cena de boot: { 'pistol': ArrayBuffer, ... }. */
+  registrar(brutos) {
+    this.brutos = brutos;
+    if (this.ctx) this.decodificar();
+  }
+
+  /** Decodificar exige o AudioContext, que só existe depois do primeiro clique/tecla. */
+  decodificar() {
+    for (const [arquivo, dados] of Object.entries(this.brutos)) {
+      // slice(0): decodeAudioData "consome" o buffer que recebe, então entregamos uma cópia
+      this.ctx.decodeAudioData(dados.slice(0)).then((buf) => { this.amostras[arquivo] = buf; })
+        .catch(() => console.warn(`Não foi possível decodificar o som "${arquivo}"`));
+    }
+    this.brutos = {};
   }
 
   /** Navegadores só liberam áudio depois de um gesto do usuário: chame isto num clique/tecla. */
@@ -74,6 +72,7 @@ class Sons {
       for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
       this.curva = new Float32Array(256);
       for (let i = 0; i < 256; i++) { const x = i / 128 - 1; this.curva[i] = Math.tanh(x * 5); }
+      this.decodificar();
     }
     if (this.ctx.state === 'suspended') this.ctx.resume();
   }
@@ -84,14 +83,45 @@ class Sons {
     return this.mudo;
   }
 
-  tocar(nome, volume = 1, intervaloMin = 0.04) {
+  /**
+   * Toca um som pelo nome (chave de data/sons.js ou de RECEITAS).
+   * @param intervaloMin  ignora o pedido se o mesmo som tocou há menos que isso (s): evita empilhar 30 mortes no mesmo quadro
+   * @param pan           posição estéreo, de -1 (esquerda) a 1 (direita)
+   */
+  tocar(nome, volume = 1, intervaloMin = 0.04, pan = 0) {
     if (!this.ctx || this.mudo || this.ctx.state !== 'running') return;
     const agora = this.ctx.currentTime;
     if (agora - (this.ultimo[nome] || -1) < intervaloMin) return;
     this.ultimo[nome] = agora;
-    this.volumeDaVez = volume;
-    this.saida = this.mestre;
-    RECEITAS[nome](this);
+    const def = SONS[nome];
+    if (def) { this.tocarAmostra(def, volume, pan); return; }
+    if (RECEITAS[nome]) {
+      this.volumeDaVez = volume;
+      this.saida = this.mestre;
+      RECEITAS[nome](this);
+    } else if (!this.avisados[nome]) {
+      this.avisados[nome] = true;
+      console.warn(`Som desconhecido: "${nome}"`);
+    }
+  }
+
+  tocarAmostra(def, volume, pan) {
+    const arquivos = def.arquivo;
+    const arquivo = Array.isArray(arquivos) ? arquivos[(Math.random() * arquivos.length) | 0] : arquivos;
+    const buf = this.amostras[arquivo];
+    if (!buf) return; // ainda decodificando (primeiros instantes depois do primeiro clique)
+    const src = this.ctx.createBufferSource(), g = this.ctx.createGain();
+    src.buffer = buf;
+    src.playbackRate.value = (def.tom || 1) * (1 + (Math.random() * 2 - 1) * (def.variacao || 0));
+    g.gain.value = (def.volume ?? 1) * volume;
+    let saida = src.connect(g);
+    if (pan && this.ctx.createStereoPanner) {
+      const p = this.ctx.createStereoPanner();
+      p.pan.value = Math.max(-1, Math.min(1, pan));
+      saida = saida.connect(p);
+    }
+    saida.connect(this.mestre);
+    src.start();
   }
 
   tom(tipo, f0, f1, dur, ganho, atraso = 0) {

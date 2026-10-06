@@ -115,13 +115,44 @@ tanque). O corpo do Doomguy não faz falta em primeira pessoa.
 | `skies` | `sky_inferno` | céu da arena e fundo do menu |
 | `skies` | `sky_nuvens` | fundo da tela de vitória |
 
+## Sons
+
+A pasta `MS-DOS - DOOM _ DOOM II - Miscellaneous - Sound Effects (...)/SFX` tem 144 WAVs originais
+(8 bits, mono, 11 kHz). O jogo usa 38. A tabela nome → arquivo está em `src/data/sons.js`, e
+`npm run sons` (`tools/copiar-sons.mjs`) copia só os citados para `public/assets/sfx/`.
+
+| Evento no jogo | WAV original |
+|---|---|
+| Pistola e chaingun (no Doom as duas usam o mesmo som) | `pistol` |
+| Shotgun · lança-foguetes · plasma | `shotgun` · `rocket launch` · `plasma` |
+| BFG: disparo e explosão | `BFG-9000` · `BFG explode` |
+| Explosões (foguete, Banshee) | `barrel explode` |
+| Trocar de arma · BFG ainda recarregando | `weapon up` · `player umf` |
+| Jogador ferido · morte | `player pain` · `player death` |
+| Item · power-up · subir de nível | `item up` · `get powerup` · `secret` |
+| Inimigo nascendo | `teleport` |
+| Blob morrendo | `gib` |
+| Lost Soul: investida · morte | `lost soul attack` · `projectile contact` |
+| Banshee: pavio · dor · morte | `banshee activity` · `banshee pain` · `banshee death` |
+| Ghoul: aparece · dor · morte (2 variações) | `ghoul sight` · `ghoul pain` · `ghoul death`, `ghoul death 2` |
+| Vassago: aparece · ataque · dor · morte | `vassago sight` · `vassago attack` · `vassago pain` · `vassago death` |
+| Tiro de inimigo · impacto · chama no chão | `projectile` · `projectile contact` · `incinerator flame hit 1` |
+| Chefão: rugido · fúria · morte | `spiderdemon sight` · `cyberdemon sight` · `spiderdemon death` |
+| Chefão: passos · metralhadora | `metal walk` · `shotgun` (mais agudo e baixo) |
+| Menu: mover · escolher | `platform stop` · `pistol` |
+| Início de onda | `klaxon` |
+
+Os sons de inimigos e explosões são **posicionais**: o volume cai com a distância e o lado
+(esquerda/direita) acompanha de onde o som vem.
+
 ## Gerado por código (não havia asset)
 
 | O quê | Onde | Como |
 |---|---|---|
 | Texturas de parede (3) e de chão (3) | `src/render/texturas.js` | ruído de valor semeado + padrões (painéis, tijolos, rebites, veios de lava) |
 | Mapa da arena | `src/data/mapa.js` | grade 44×44 com pilares e muros descritos em dados |
-| Todos os sons e a música | `src/systems/Sons.js` | Web Audio: osciladores e ruído filtrado; a música é um sequenciador de 16 passos |
+| A música | `src/systems/Sons.js` | Web Audio: sequenciador de 16 passos (baixo distorcido, bumbo e chimbal) |
+| 3 efeitos sem equivalente no pack: XP, dash e fanfarra da vitória | `src/systems/Sons.js` | osciladores e ruído filtrado |
 | Números de dano | `src/render/Raycaster.js` | fonte 3×5 pintada direto no buffer |
 | Textos da interface | cenas | fonte do sistema (Impact). As fontes do pack estão em `Assets/` mas não foram recortadas: os glifos são colados uns nos outros e não têm acentos confiáveis |
 

@@ -67,15 +67,16 @@ src/
   main.js            configuração do Phaser
   config.js          resolução, FOV e outras constantes
   data/              BALANCEAMENTO: tudo que é número está aqui
-    armas.js  inimigos.js  ondas.js  chefe.js  upgrades.js  itens.js  mapa.js
+    armas.js  inimigos.js  ondas.js  chefe.js  upgrades.js  itens.js  sons.js  mapa.js
   entities/          Jogador, Inimigo (IA por tipo), Chefe, Projeteis, Itens, Efeitos
   systems/           Armas, Horda (pool + grade espacial), Diretor (ondas), CampoDeFluxo,
                      Entrada, Sons, Pool, Recorde
   render/            Raycaster (o "motor 3D"), texturas procedurais, banco de sprites
   scenes/            Boot, Menu, Jogo, Hud, Cartas (level-up), Pausa, Fim
-tools/               recorte dos assets e teste automatizado
+tools/               recorte dos sprites, cópia dos sons e teste automatizado
 public/assets/       atlas gerados (PNG + JSON)
 Assets/              sheets originais do Spriters Resource (entrada do recorte)
+MS-DOS - ... - Sound Effects (...)/   efeitos sonoros originais (entrada de `npm run sons`)
 ```
 
 Para balancear, mexa em `src/data/`. Exemplos: vida e velocidade de um monstro em `inimigos.js`;
@@ -103,6 +104,7 @@ Os atlas em `public/assets/` são gerados a partir das sheets de `Assets/`:
 
 ```bash
 npm run assets     # refaz os atlas (tools/recortar.mjs)
+npm run sons       # copia para public/assets/sfx os sons citados em src/data/sons.js
 npm run teste      # sobe o jogo num Edge/Chrome headless e acusa erros de console
 ```
 
@@ -117,7 +119,8 @@ Acrescentar `?debug` à URL liga atalhos de teste: **K** mata todos, **N** próx
 - **Rips**, via [The Spriters Resource](https://www.spriters-resource.com/): Dolphman (Lost Soul, armas,
   rosto do HUD), Planz Doom (Vassago), MG12 (Spider Mastermind e Blob do id Vault), PGE (Ghoul),
   DaColGy, 16-Bit Globe e SuperDave938 (efeitos, menu e HUD).
-- **Texturas de cenário, sons e música**: gerados por código neste projeto.
+- **Efeitos sonoros**: © id Software — rips de Nai255 e InfamousLazure (Legacy of Rust).
+- **Texturas de cenário e música**: geradas por código neste projeto.
 - **Engine**: [Phaser 3](https://phaser.io) (MIT). **Build**: [Vite](https://vitejs.dev).
 
 Projeto acadêmico, sem fins lucrativos. DOOM é marca registrada da id Software LLC; este projeto não

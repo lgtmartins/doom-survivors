@@ -134,7 +134,10 @@ export class Diretor {
     const e = this.jogo.horda.criar(tipo, x, y);
     if (!e) return null;
     this.jogo.efeitos.anim(EFEITOS.teleporte, x, y, INIMIGOS[tipo].voa || 0.5, 1.2, 16);
-    if (comSom) sons.tocar('teleporte', 0.35, 0.25);
+    if (comSom) this.jogo.somEm('teleporte', x, y, 0.7, 0.25);
+    // o grito de "te vi" de quem tem um (Ghoul, Vassago) avisa que ele chegou
+    const ver = INIMIGOS[tipo].sons?.ver;
+    if (ver) this.jogo.somEm(ver, x, y, 1, 1.5);
     return e;
   }
 
