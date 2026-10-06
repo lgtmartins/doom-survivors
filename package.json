@@ -1,0 +1,22 @@
+{
+  "name": "doom-survivors",
+  "version": "1.0.0",
+  "description": "Survival roguelike em primeira pessoa com sprites de Doom (Phaser 3 + Vite)",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "assets": "node tools/recortar.mjs",
+    "teste": "node tools/teste.mjs"
+  },
+  "type": "module",
+  "dependencies": {
+    "phaser": "^3.90.0"
+  },
+  "devDependencies": {
+    "playwright-core": "^1.63.0",
+    "sharp": "^0.35.5",
+    "vite": "^8.3.3"
+  },
+  "private": true
+}
