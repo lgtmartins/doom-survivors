@@ -1,6 +1,6 @@
 // Sistema de armas: qual está na mão, cadência, disparo (hitscan ou projétil) e
 // a animação da arma em primeira pessoa. Os números vêm de data/armas.js.
-import { ARMAS, ORDEM_ARMAS } from '../data/armas.js';
+import { ARMAS, ORDEM_ARMAS, PODER_DE_FOGO } from '../data/armas.js';
 import { EFEITOS } from '../data/inimigos.js';
 import { ALTURA_OLHO } from '../config.js';
 import { ferirInimigo } from '../entities/Inimigo.js';
@@ -129,7 +129,7 @@ export class Armas {
     const jog = jogo.jogador;
     const nivel = jog.armas[arma.id]?.nivel || 1;
     const evo = arma.evolucao;
-    const dano = arma.dano * (1 + (nivel - 1) * (evo.dano || 0)) * jog.multDano;
+    const dano = arma.dano * PODER_DE_FOGO * (1 + (nivel - 1) * (evo.dano || 0)) * jog.multDano;
     let n = arma.projeteis + (nivel - 1) * (evo.projeteis || 0);
     const extras = arma.suprema ? 0 : jog.mods.projeteis * (arma.id === 'shotgun' ? 2 : 1);
     n += extras;
