@@ -4,15 +4,49 @@ Survival roguelike em **primeira pessoa** com os sprites de DOOM / DOOM II: sobr
 demônios numa arena, suba de nível escolhendo upgrades e derrote o Spider Mastermind.
 
 Projeto da disciplina de Jogos Digitais. Feito com **Phaser 3 + Vite**, JavaScript (ES modules), sem backend.
+O documento de design do jogo está em [GDD.md](GDD.md).
 
-## Como rodar
+## Integrantes
 
-Precisa do [Node.js](https://nodejs.org) 18 ou mais novo.
+- Luiz Guilherme Tiritan Martins
+- Pedro Guermandi Bressan
+- Gustavo Messa Corbe
+
+## Como executar o jogo
+
+### 1. Instalar o Node.js (só na primeira vez)
+
+O jogo precisa do [Node.js](https://nodejs.org) 18 ou mais novo (recomendado: a versão LTS).
+No Windows dá para instalar pelo terminal:
+
+```powershell
+winget install OpenJS.NodeJS.LTS
+```
+
+Depois de instalar, **feche e abra o terminal de novo**. Para conferir: `node --version`.
+
+### 2. Baixar as dependências (só na primeira vez)
+
+No terminal, dentro da pasta do projeto:
 
 ```bash
 npm install
-npm run dev        # abre em http://localhost:5173
 ```
+
+### 3. Rodar
+
+```bash
+npm run dev
+```
+
+Abra no navegador o endereço que aparecer no terminal (normalmente **http://localhost:5173**).
+Clique em **NOVO JOGO** e clique na tela para o jogo capturar o mouse. Para encerrar o servidor,
+aperte `Ctrl + C` no terminal.
+
+Use Chrome, Edge ou Firefox atualizados. O som só começa depois do primeiro clique ou tecla
+(regra dos navegadores).
+
+### Versão para publicar (opcional)
 
 ```bash
 npm run build      # gera o site estático em dist/
@@ -115,8 +149,12 @@ Acrescentar `?debug` à URL liga atalhos de teste: **K** mata todos, **N** próx
 
 ## Créditos
 
+Os créditos também aparecem dentro do jogo, na opção **CRÉDITOS** do menu principal.
+
+- **Desenvolvimento**: Luiz Guilherme Tiritan Martins, Pedro Guermandi Bressan e Gustavo Messa Corbe.
 - **Sprites e gráficos**: © **id Software** / Bethesda — *DOOM*, *DOOM II* e *Legacy of Rust*.
-- **Rips**, via [The Spriters Resource](https://www.spriters-resource.com/): Dolphman (Lost Soul, armas,
+- **Origem das sheets**: [The Spriters Resource — DOOM / DOOM II (MS-DOS)](https://www.spriters-resource.com/ms_dos/doomdoomii/).
+- **Rips**: Dolphman (Lost Soul, armas,
   rosto do HUD), Planz Doom (Vassago), MG12 (Spider Mastermind e Blob do id Vault), PGE (Ghoul),
   DaColGy, 16-Bit Globe e SuperDave938 (efeitos, menu e HUD).
 - **Efeitos sonoros**: © id Software — rips de Nai255 e InfamousLazure (Legacy of Rust).

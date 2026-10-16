@@ -1,6 +1,6 @@
-// Menu inicial, com três telas: principal, "como jogar" e recordes.
+// Menu inicial, com quatro telas: principal, "como jogar", recordes e créditos.
 //
-// As três são a MESMA cena. Trocar de tela é reiniciar a cena passando qual tela
+// As quatro são a MESMA cena. Trocar de tela é reiniciar a cena passando qual tela
 // mostrar (scene.restart({ tela })): o Phaser limpa objetos e teclas da tela
 // anterior sozinho, então não há nada para esconder/mostrar à mão.
 import Phaser from 'phaser';
@@ -19,6 +19,9 @@ const CONTROLES = [
   ['BOTÃO DIREITO', 'BFG 9000 (quando tiver)'],
   ['ESC / P', 'pausa   ·   M: som'],
 ];
+
+const EQUIPE = ['Luiz Guilherme Tiritan Martins', 'Pedro Guermandi Bressan', 'Gustavo Messa Corbe'];
+const URL_SPRITES = 'https://www.spriters-resource.com/ms_dos/doomdoomii/';
 
 const DICAS = [
   'Recolha as poções azuis: são o XP. A cada nível você escolhe 1 de 3 upgrades.',
@@ -44,6 +47,7 @@ export class CenaMenu extends Phaser.Scene {
 
     if (this.tela === 'comoJogar') this.telaComoJogar();
     else if (this.tela === 'recordes') this.telaRecordes();
+    else if (this.tela === 'creditos') this.telaCreditos();
     else this.telaPrincipal();
   }
 
@@ -59,11 +63,38 @@ export class CenaMenu extends Phaser.Scene {
     texto(this, TELA_L / 2, 250, 'S U R V I V O R S', 46, COR.amarelo);
     texto(this, TELA_L / 2, 292, `sobreviva a ${ONDAS.length} ondas e derrote o Spider Mastermind`, 18, COR.cinza);
 
-    new ListaDeBotoes(this, TELA_L / 2, 372, [
+    new ListaDeBotoes(this, TELA_L / 2, 366, [
       { rotulo: 'NOVO JOGO', acao: () => this.iniciar() },
       { rotulo: 'COMO JOGAR?', acao: () => this.scene.restart({ tela: 'comoJogar' }) },
       { rotulo: 'RECORDS', acao: () => this.scene.restart({ tela: 'recordes' }) },
-    ], { tamanho: 38, espaco: 58 });
+      { rotulo: 'CRÉDITOS', acao: () => this.scene.restart({ tela: 'creditos' }) },
+    ], { tamanho: 36, espaco: 52 });
+  }
+
+  telaCreditos() {
+    texto(this, TELA_L / 2, 52, 'CRÉDITOS', 52, COR.amarelo);
+    let y = 112;
+    // cada bloco: título amarelo e as linhas em branco/cinza logo abaixo
+    const bloco = (titulo, linhas, cor = COR.branco) => {
+      texto(this, TELA_L / 2, y, titulo, 20, COR.amarelo);
+      y += 25;
+      for (const l of linhas) { texto(this, TELA_L / 2, y, l, 17, cor); y += 22; }
+      y += 10;
+    };
+    bloco('DESENVOLVIDO POR', [EQUIPE.join('   ·   '), 'Disciplina de Jogos Digitais']);
+    bloco('SPRITES E GRÁFICOS', ['© id Software / Bethesda  —  DOOM, DOOM II e Legacy of Rust']);
+    // o endereço é clicável: abre a página das sheets numa aba nova
+    texto(this, TELA_L / 2, y - 6, 'Sheets obtidas em The Spriters Resource:', 17, COR.branco);
+    // em Arial e com folga embaixo: na fonte Impact o "_" de ms_dos é cortado e some
+    const link = texto(this, TELA_L / 2, y + 16, URL_SPRITES.replace('https://', ''), 17, '#7fb2ff')
+      .setFontFamily('Arial, sans-serif').setFontStyle('bold').setPadding(0, 0, 0, 4)
+      .setInteractive({ useHandCursor: true });
+    link.on('pointerdown', () => window.open(URL_SPRITES, '_blank'));
+    y += 44;
+    bloco('RIPS DOS SPRITES', ['Dolphman  ·  Planz Doom  ·  MG12  ·  PGE  ·  DaColGy  ·  16-Bit Globe  ·  SuperDave938'], COR.cinza);
+    bloco('EFEITOS SONOROS', ['© id Software  —  rips de Nai255 e InfamousLazure'], COR.cinza);
+    bloco('TECNOLOGIA', ['Phaser 3 + Vite  ·  texturas do cenário e música geradas por código'], COR.cinza);
+    this.botaoVoltar(548);
   }
 
   telaComoJogar() {
@@ -102,9 +133,9 @@ export class CenaMenu extends Phaser.Scene {
     this.botaoVoltar();
   }
 
-  botaoVoltar() {
+  botaoVoltar(y = 530) {
     const voltar = () => this.scene.restart({ tela: 'principal' });
-    new ListaDeBotoes(this, TELA_L / 2, 530, [{ rotulo: 'VOLTAR', acao: voltar }], { tamanho: 34 });
+    new ListaDeBotoes(this, TELA_L / 2, y, [{ rotulo: 'VOLTAR', acao: voltar }], { tamanho: 34 });
     aoTecla(this, 'ESC', () => { sons.tocar('menu'); voltar(); });
   }
 
