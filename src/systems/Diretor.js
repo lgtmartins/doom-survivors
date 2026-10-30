@@ -61,7 +61,7 @@ export class Diretor {
     this.t = 0;
     const onda = ONDAS[i];
     this.grupos = onda.grupos.map(g => ({
-      tipo: g.tipo, qtd: g.qtd, pacote: g.pacote || 1, feitos: 0,
+      tipo: g.tipo, qtd: Math.max(1, Math.round(g.qtd * R.quantidade)), pacote: g.pacote || 1, feitos: 0,
       inicio: g.inicio || 0, fim: g.fim ?? onda.duracao * 0.85,
     }));
     this.jogo.stats.onda = i + 1;
