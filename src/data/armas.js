@@ -82,4 +82,4 @@ export const NIVEL_MAX_ARMA = 4;
 // Botão geral de poder de fogo: multiplica o dano de TODAS as armas de uma vez.
 // 1 = os valores da tabela acima; 2 = o dobro. É o jeito rápido de deixar o jogo
 // mais fácil ou mais difícil sem mexer arma por arma.
-export const PODER_DE_FOGO = 2;
+export const PODER_DE_FOGO = 4;
