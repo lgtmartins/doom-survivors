@@ -24,7 +24,7 @@ export const ONDAS = [
 ];
 
 export const REGRAS_DE_ONDA = {
-  quantidade: 0.6,        // multiplica o `qtd` de todos os grupos (1 = a tabela acima; 0.6 = 40% menos inimigos)
+  quantidade: 0.5,        // multiplica o `qtd` de todos os grupos (1 = a tabela acima; 0.6 = 40% menos inimigos)
   vidaPorOnda: 0.2,       // +20% de vida dos inimigos a cada onda
   danoPorOnda: 0.05,      // +5% de dano a cada onda
   maxVivos: 260,          // teto de inimigos vivos (o nascimento espera abrir vaga)
